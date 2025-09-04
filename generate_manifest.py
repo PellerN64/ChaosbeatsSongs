@@ -79,6 +79,7 @@ for fname in os.listdir(songs_dir):
             "title": info.get("name", "A Song"),
             "artist": info.get("artist", "Some Person"),
             "creator": info.get("creator", "Some Nobody"),
+            "description": info.get("description", ""),
             "bpm": meta.get("bpm", None),
             "url": f"https://pellern64.github.io/ChaosbeatsSongs/{songs_dir}/{fname}",
             "preview": preview_url,
@@ -89,3 +90,4 @@ for fname in os.listdir(songs_dir):
 os.makedirs("public", exist_ok=True)
 with open("public/manifest.json", "w", encoding="utf-8") as f:
     json.dump(manifest, f, indent=2, ensure_ascii=False)
+
