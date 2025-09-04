@@ -5,6 +5,7 @@ on:
     paths:
       - "songs/*.cbs"
       - "generate_manifest.py"
+      - ".github/workflows/manifest.yml"
       - ".github/workflows/pages.yml"
 
 jobs:
