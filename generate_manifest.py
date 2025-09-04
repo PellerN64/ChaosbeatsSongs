@@ -50,7 +50,7 @@ for fname in os.listdir(songs_dir):
             "artist": info.get("artist", ""),
             "creator": info.get("creator", ""),
             "bpm": meta.get("bpm", None),
-            "url": f"https://pellern64.github.io/ChaosbeatsSongs/main/{songs_dir}/{fname}",
+            "url": f"https://pellern64.github.io/ChaosbeatsSongs/{songs_dir}/{fname}",
             "preview": info.get("preview", info.get("songfile", None)),
             "difficulties": difficulties
         })
