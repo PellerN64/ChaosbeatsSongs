@@ -19,19 +19,15 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Generate manifest.json
+      - name: Generate manifest.json and extract icons
         run: python generate_manifest.py
 
-      - name: List files #delete later ...
-        run: ls -R
-
-      - name: Prepare artifact directory
+      - name: Prepare songs folder in public
         run: |
-          mkdir public
-          cp manifest.json public/
-          cp -r songs public/
+          mkdir -p public/songs
+          cp -r songs/* public/songs/
 
-      - name: Upload artifact
+      - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v4
         with:
           path: public
@@ -44,8 +40,7 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4 #cmon ..
+        uses: actions/deploy-pages@v4
