@@ -25,9 +25,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path:
-            songs
-            manifest.json
+          path: songs manifest.json
 
   deploy:
     needs: build
