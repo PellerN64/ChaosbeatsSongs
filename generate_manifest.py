@@ -18,11 +18,7 @@ for fname in os.listdir(songs_dir):
     preview_url = None
 
     with zipfile.ZipFile(path, "r") as z:
-        info_cbi_path = None
-        for name in z.namelist():
-            if name.lower().endswith("info.cbi"):
-                info_cbi_path = name
-                break
+        info_cbi_path = next((n for n in z.namelist() if n.lower().endswith("info.cbi")), None)
         if not info_cbi_path:
             print(f"skipping {fname}: no info.cbi found")
             continue
@@ -51,27 +47,30 @@ for fname in os.listdir(songs_dir):
                 print(f"skipping {fname}: failed to parse info.cbi ({e})")
                 continue
 
-        if "info" not in parser:
+        sections = {s.lower(): s for s in parser.sections()}
+
+        if 'info' not in sections:
             print(f"skipping {fname}: [Info] section missing")
             continue
-        info = parser["info"]
-        meta = parser["meta"] if "meta" in parser else {}
+        info = parser[sections['info']]
+
+        meta = parser[sections['meta']] if 'meta' in sections else {}
 
         difficulties = []
-        for section in parser.sections():
-            if section.lower().startswith("difficulties."):
-                diff = parser[section]
+        for sec_lower, sec_orig in sections.items():
+            if sec_lower.startswith("difficulties."):
+                diff = parser[sec_orig]
                 songfile = diff.get("songfile", None)
                 if songfile:
                     preview_url = f"https://pellern64.github.io/ChaosbeatsSongs/audio/{song_id}/{songfile}"
                 difficulties.append({
-                    "id": section.split(".", 1)[1].lower(),
+                    "id": sec_lower.split(".", 1)[1],
                     "name": diff.get("difficultyname", ""),
                     "chart": diff.get("chart", ""),
                     "songFile": f"https://pellern64.github.io/ChaosbeatsSongs/audio/{song_id}/{songfile}" if songfile else None
                 })
 
-        if not preview_url and "preview" in info:
+        if not preview_url and 'preview' in info:
             preview_file = info.get("preview")
             preview_url = f"https://pellern64.github.io/ChaosbeatsSongs/audio/{song_id}/{preview_file}" if preview_file else None
 
