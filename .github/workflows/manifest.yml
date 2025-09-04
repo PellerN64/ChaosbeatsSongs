@@ -25,10 +25,16 @@ jobs:
       - name: List files #delete later ...
         run: ls -R
 
+      - name: Prepare artifact directory
+        run: |
+          mkdir public
+          cp manifest.json public/
+          cp -r songs public/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ./songs ./manifest.json
+          path: public
 
   deploy:
     needs: build
