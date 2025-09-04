@@ -9,35 +9,49 @@ for fname in os.listdir(songs_dir):
     path = os.path.join(songs_dir, fname)
 
     with zipfile.ZipFile(path, "r") as z:
-        if "info.cbi" not in z.namelist():
+        info_cbi_path = None
+        for name in z.namelist():
+            if name.lower().endswith("info.cbi"):
+                info_cbi_path = name
+                break
+        if not info_cbi_path:
+            print(f"skipping {fname}: no info.cbi found")
             continue
 
-        with z.open("info.cbi") as f:
+        with z.open(info_cbi_path) as f:
             parser = configparser.ConfigParser()
-            parser.read_string(f.read().decode("utf-8"))
+            parser.optionxform = str.lower
+            try:
+                parser.read_string(f.read().decode("utf-8-sig"))
+            except Exception as e:
+                print(f"skipping {fname}: failed to parse info.cbi ({e})")
+                continue
 
-        info = parser["Info"]
-        meta = parser["Meta"] if "Meta" in parser else {}
+        if "info" not in parser:
+            print(f"skipping {fname}: [Info] section missing")
+            continue
+        info = parser["info"]
+        meta = parser["meta"] if "meta" in parser else {}
 
         difficulties = []
         for section in parser.sections():
-            if section.startswith("Difficulties."):
+            if section.lower().startswith("difficulties."):
                 diff = parser[section]
                 difficulties.append({
                     "id": section.split(".", 1)[1].lower(),
-                    "name": diff.get("DifficultyName", ""),
-                    "chart": diff.get("Chart", ""),
-                    "songFile": diff.get("SongFile", None)
+                    "name": diff.get("difficultyname", ""),
+                    "chart": diff.get("chart", ""),
+                    "songFile": diff.get("songfile", None)
                 })
 
         manifest.append({
             "id": os.path.splitext(fname)[0],
-            "title": info.get("Name", ""),
-            "artist": info.get("Artist", ""),
-            "creator": info.get("Creator", ""),
-            "bpm": meta.get("BPM", None),
+            "title": info.get("name", ""),
+            "artist": info.get("artist", ""),
+            "creator": info.get("creator", ""),
+            "bpm": meta.get("bpm", None),
             "url": f"https://pellern64.github.io/ChaosbeatsSongs/main/{songs_dir}/{fname}",
-            "preview": info.get("Preview", info.get("Song", None)),
+            "preview": info.get("preview", info.get("songfile", None)),
             "difficulties": difficulties
         })
 
